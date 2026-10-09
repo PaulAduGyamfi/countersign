@@ -1,0 +1,12 @@
+.env
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/node_modules/
+web/dist/
+api/static/
+infra/.terraform/
+infra/terraform.tfstate*
+infra/*.tfplan
+.DS_Store
