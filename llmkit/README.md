@@ -90,10 +90,10 @@ async with LLMClient(settings, transport=transport) as client:
 
 ```bash
 uv sync
-uv run pre-commit install
 uv run pytest -v
 uv run pyright
 uv run ruff check .
 ```
 
-CI runs all of the above on every push and pull request.
+In the Countersign repo, `make hooks` at the repo root installs the pre-commit hooks, which run
+ruff on every commit. The tests and pyright run before every pull request.

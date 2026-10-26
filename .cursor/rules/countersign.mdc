@@ -1,0 +1,23 @@
+---
+description: Cursor-specific notes for Countersign. The shared rules are in AGENTS.md.
+alwaysApply: true
+---
+
+AGENTS.md at the repo root is the rulebook; Cursor loads it for you. This file only covers what
+differs in Cursor.
+
+- **Area rules.** Claude Code loads `.claude/rules/<area>.md` on its own; Cursor doesn't. Before
+  you edit files in an area, read its rule file: `api/app/**/*.py` -> `python-api.md`,
+  `llmkit/**` -> `llmkit.md`, `schema.sql`, `db.py`, `load_world.py` -> `sql-schema.md`,
+  `*/tests/**` -> `tests.md`. A rule file that says an area arrives in a later ticket means
+  stop and ask.
+- **No Claude Code hooks run here.** After editing a Python file, run its project's formatter
+  and safe fixes yourself, in `api/` or `llmkit/`: `uv run ruff format <file>` then
+  `uv run ruff check --fix <file>`. Then run the checks in AGENTS.md before you say done.
+- **Git's pre-commit hooks do run here**, on every commit (ruff, whitespace, secrets). If one
+  fails, fix the cause and commit again; never skip it (`--no-verify`, `SKIP=`).
+- **Secrets.** Cursor hides `.env` from the editor tools, but not from the terminal. Never run
+  a command that reads, prints or copies `.env`.
+- **Plan first.** Write `specs/<ticket>/spec.md` from `specs/TEMPLATE/` if it is missing, then
+  the plan and tasks in the chat (they go in the pull request description, not the repo), and
+  wait for Paul's approval before editing code.
