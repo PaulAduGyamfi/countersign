@@ -31,7 +31,6 @@ other (loader twice, psql, curl):
 - **What I wrote or changed myself:**
 - **What I verified, and how:** <!-- read every line; ran the checks; tried the failure case; asked the reviewer subagent -->
 - **Reviewer findings:** <!-- reviewer subagents, the Claude review on this PR, Copilot's Review selection: critical ones fixed, the rest listed or "none" -->
-- **What I can't yet explain:** <!-- honest. "Nothing" only if true. -->
 
 ## Checklist
 
