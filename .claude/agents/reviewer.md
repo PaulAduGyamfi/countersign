@@ -58,6 +58,9 @@ files; your shell is limited to read-only git commands and the checks.
 Report a gap only when it affects correctness, the spec, the rules above, or Paul's ability to
 explain the code. Style that ruff and pyright already enforce is not a finding. If the change is
 sound, say so plainly; don't invent findings.
+9. **Area checks** (added by the ticket that brought the area):
+   - Thresholds and confidence bands are tested at their edges: at each cut-off and just below it
+     (C-103).
 
 ## Report
 

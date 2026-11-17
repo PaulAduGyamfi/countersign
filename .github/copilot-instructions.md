@@ -17,6 +17,7 @@ most, copied here because a Copilot review doesn't follow links.
 - Settings come only from `app.settings.Settings`. Secrets live in `.env`, which is never read,
   printed or committed. New settings go in `.env.example` with placeholders.
 - Data is synthetic. Emails use `example.com` or `countersign.example`.
+- A resolver below `MEDIUM` never guesses: `merchant_id` is None, with its band and candidates.
 
 ## Code review
 

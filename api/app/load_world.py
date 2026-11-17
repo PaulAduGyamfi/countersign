@@ -11,6 +11,7 @@ from psycopg import sql
 from psycopg.types.json import Jsonb
 
 from app.db import apply_schema
+from app.merchants import normalize
 from app.settings import get_settings
 
 WORLD = Path(__file__).resolve().parents[2] / "data" / "world.json"
@@ -64,6 +65,19 @@ def prepare(row: dict[str, Any]) -> dict[str, Any]:
     return row
 
 
+async def refresh_merchant_names(conn: psycopg.AsyncConnection) -> None:
+    """Rebuild the fuzzy-match table: every name and alias of every seller, normalized."""
+    cur = await conn.execute("SELECT id, name, aliases FROM merchants WHERE kind = 'direct'")
+    names = {
+        (mid, normalize(n)) for mid, name, aliases in await cur.fetchall() for n in [name, *aliases]
+    }
+    await conn.execute("DELETE FROM merchant_names")
+    async with conn.cursor() as cur:
+        await cur.executemany(
+            "INSERT INTO merchant_names (merchant_id, name) VALUES (%s, %s)", sorted(names)
+        )
+
+
 def read_world(path: Path = WORLD) -> dict[str, Any]:
     """The synthetic world, exactly as the file has it."""
     return json.loads(path.read_text())
@@ -87,6 +101,12 @@ async def load(url: str, world: dict[str, Any] | None = None) -> dict[str, int]:
                     )
                     row = await cur.fetchone()
                     counts[table] = row[0] if row else 0
+            # Still inside the transaction, and after `merchants`, whose ids it points at.
+            await refresh_merchant_names(conn)
+            # Count what the table holds, not what we sent, as for the other tables.
+            cur = await conn.execute("SELECT count(*) FROM merchant_names")
+            row = await cur.fetchone()
+            counts["merchant_names"] = row[0] if row else 0
     return counts
 
 
@@ -98,7 +118,7 @@ def main() -> None:
     counts = asyncio.run(load(url))
     print(f"Loaded the world in {time.perf_counter() - start:.1f}s")
     for table, n in counts.items():
-        print(f"  {table:<12} {n}")
+        print(f"  {table:<15} {n}")
 
 
 if __name__ == "__main__":
