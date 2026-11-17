@@ -48,6 +48,15 @@ CREATE TABLE IF NOT EXISTS merchants (
     return_note           text NOT NULL
 );
 
+-- Each direct merchant's name and aliases, normalized by app.merchants.normalize(). The loader
+-- rebuilds it on every load. The GIN trigram index lets `similarity()` and `%` find near names.
+CREATE TABLE IF NOT EXISTS merchant_names (
+    merchant_id text NOT NULL REFERENCES merchants (id),
+    name        text NOT NULL CHECK (name <> ''),
+    PRIMARY KEY (merchant_id, name)
+);
+CREATE INDEX IF NOT EXISTS merchant_names_trgm ON merchant_names USING gin (name gin_trgm_ops);
+
 CREATE TABLE IF NOT EXISTS intents (
     id               text PRIMARY KEY,
     card_id          text NOT NULL REFERENCES cards (id),

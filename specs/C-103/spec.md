@@ -35,13 +35,17 @@ trigram index, and labels the hard ones honestly for the investigator (C-207).
 4. `PAYPAL *NWRUNNINGCO` returns no merchant (`merchant_id` None), low confidence, and no
    candidates. A direct merchant of record resolves `high` by `merchant_of_record`. Check:
    `test_resolve_seller`, `test_a_thin_descriptor_lists_no_candidates`.
+4a. A `medium` match names the seller (`merchant_id` and `name` set) and lists the candidates;
+   only `low` names none. Check: `test_a_medium_match_names_the_seller`. (Added in T5 at Paul's
+   request.)
 5. The loader reports 24 merchant names, all of direct merchants, and loading twice still
    changes nothing. Check: `test_the_loader_names_only_direct_merchants`.
 6. `uv run pytest -q` in `api/` shows `34 passed` with Postgres up; ruff and pyright clean.
 
 ## Rules that apply
 
-- "I can't tell" beats a guess (AGENTS.md: Domain rules); thresholds as named constants
+- "I can't tell" beats a weak guess (AGENTS.md: Domain rules): below `MEDIUM` no seller is
+  named, and the claim escalates (DOH-3.2); thresholds as named constants
   (`.claude/rules/python-api.md`).
 - SQL values as parameters, including the `%(q)s` passed to `similarity()` and `%`.
 - Safe to repeat: `refresh_merchant_names()` rebuilds inside the loader's one transaction.
@@ -50,12 +54,12 @@ trigram index, and labels the hard ones honestly for the investigator (C-207).
 
 - `AGENTS.md`: `merchants.py` in the layout, its CLI in the commands, the "I can't tell beats a
   guess" domain rule, the test count.
-- `.claude/rules/python-api.md`: cut-offs as named constants, resolvers return `None` with
-  candidates, domain reads through `Store` (the loader excepted).
+- `.claude/rules/python-api.md`: cut-offs as named constants, resolvers return `None` at `low`
+  and name the seller at `medium` or `high`, domain reads through `Store` (the loader excepted).
 - `.claude/agents/reviewer.md`: the area checks start (bands tested at their edges).
 - `.claude/settings.json`: `uv run --directory api python -m app.merchants *` allowed and
   excluded from the sandbox (it needs Postgres).
-- `.github/copilot-instructions.md`: a resolver that isn't sure never guesses.
+- `.github/copilot-instructions.md`: a resolver below `MEDIUM` never guesses.
 
 ## Out of scope
 
@@ -65,5 +69,6 @@ trigram index, and labels the hard ones honestly for the investigator (C-207).
 
 ## Open questions
 
-1. Should the CLI print the candidates for a medium match, or only the winner? (The plan
-   proposes both, winner first.)
+1. Should the CLI print the candidates for a medium match, or only the winner? Answered in T6:
+   every candidate with its score and band, best first, so the winner is the first line
+   (plan.md).

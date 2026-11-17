@@ -32,7 +32,8 @@
         "Bash(pre-commit run *)",
         "Bash(gh pr view *)",
         "Bash(gh pr checks *)",
-        "Bash(gh run view *)"
+        "Bash(gh run view *)",
+        "Bash(uv run --directory api python -m app.merchants *)"
       ],
       "ask": [
         "Bash(git push *)",
@@ -96,6 +97,7 @@
         "uv run python -m app.load_world",
         "uv run --directory api python -m app.load_world",
         "uv run uvicorn *",
+        "uv run --directory api python -m app.merchants *",
         "gh pr create *",
         "gh pr view *",
         "gh pr checks *",
