@@ -13,8 +13,8 @@ Rules for one area live in `.claude/rules/<area>.md`.
 
 - `api/`: the claims API (FastAPI, uv project, import package `app`). `app/main.py` holds the
   `create_app()` factory; `errors.py` and `schemas.py` hold the one error shape; `settings.py`
-  reads the environment; `db.py`, `schema.sql` and `load_world.py` hold the database work.
-  Tests in `api/tests/`.
+  reads the environment; `db.py`, `schema.sql` and `load_world.py` hold the database work;
+  `merchants.py` turns a card descriptor into the merchant it names. Tests in `api/tests/`.
 - `llmkit/`: My own library (src layout, `llmkit/src/llmkit/`), its own uv project and tests.
 - `data/world.json`: the synthetic world. NEVER write or edit it.
 - `docker-compose.yml` + `docker/initdb.sql`: Postgres 16 with pgvector for local work.
@@ -33,14 +33,15 @@ Rules for one area live in `.claude/rules/<area>.md`.
 | `api/` or `llmkit/` | `uv run ruff format .` then `uv run ruff check .` | format, then lint |
 | `api/` or `llmkit/` | `uv run pyright` | type check (standard in api, strict in llmkit) |
 | `api/` | `uv run python -m app.load_world` | load the world; run it twice, same counts |
+| `api/` | `uv run python -m app.merchants "SQ *COBALT COFFEE ROA"` | resolve a descriptor: candidates, scores, bands (needs Postgres) |
 | `api/` | `uv run uvicorn app.main:app --reload` | run the API on :8000 (long-running) |
 
 From the repo root, `uv run --directory api <command>` runs the same command in `api/` (and
 likewise for `llmkit/`): `uv run --directory api pytest -q`.
 
 **Done** means every check above passes in every project you touched, and you showed the output.
-In `api/` with Postgres running the suite is `4 passed`; `2 passed, 2 skipped` means Postgres is
-down, which is not a pass. Start it and run again.
+In `api/` with Postgres running the suite is `34 passed` (at C-103); any skipped test means
+Postgres is down, which is not a pass. Start it and run again.
 
 ## Stack
 
@@ -75,6 +76,8 @@ the lock. Never edit `uv.lock`, `pyproject.toml` versions or `.python-version` b
 - **One unit of work, one transaction**: all of it commits or none of it does.
 - **The database guards the data**: CHECK, NOT NULL and foreign keys in the schema, not only in
   Python.
+- **"I can't tell" beats a guess.** Below a named cut-off we name no merchant and say how sure we
+  are; the claim escalates (DOH-3.2).
 - **Synthetic data only.** Every person, card, merchant and agent is invented. Emails use
   `example.com` or `countersign.example`. Never add real names, card numbers, API keys or emails,
   not even in tests.

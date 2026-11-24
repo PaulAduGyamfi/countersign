@@ -21,3 +21,9 @@ paths:
   (`raise SystemExit(...)`), not a traceback.
 - Money fields end in `_cents` and are `int`. Times are `timestamptz` / aware `datetime` in UTC.
 - Keep functions short. A docstring says what the function promises; comments say why.
+- Cut-offs are named constants with a comment saying what they mean (`HIGH, MEDIUM` in
+  `merchants.py`), never bare numbers in logic.
+- A resolver that isn't sure (`low`) returns `merchant_id = None` with its band and the
+  candidates it found; `medium` and `high` name the merchant.
+- Domain code reads the database through `Store` methods (`db.py`). The loader is the one
+  exception: it reads and writes on its own connection, inside its one transaction.
